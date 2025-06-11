@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temple Tales Studio - Tamil SSML Voice Formatter</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: linear-gradient(to right, #f7f8fc, #eef1fb);
+      color: #333;
+    }
+    header {
+      background: linear-gradient(90deg, #4b0082, #6a0dad);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    header img {
+      max-height: 120px;
+      margin-bottom: 15px;
+    }
+    .container {
+      max-width: 960px;
+      margin: auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 30px;
+      margin-top: 30px;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: scale(1.01);
+    }
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+    button.buy {
+      background-color: #4b0082;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background-color 0.3s;
+    }
+    button.buy:hover {
+      background-color: #5a00a3;
+    }
+    .demo {
+      background: #f0f0f0;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .upi {
+      font-size: 18px;
+      background: #fff4cc;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 10px;
+      border: 2px dashed #b8860b;
+      text-align: center;
+    }
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      padding: 20px;
+      color: #555;
+      background: #f3f3f3;
+    }
+  </style>
+  <script>
+    function downloadTool() {
+      const password = prompt("Enter download password:");
+      if (password === "templetales99") {
+        const link = document.createElement('a');
+        link.href = 'tamil-text-processor.html';
+        link.download = 'Tamil-Text-Processor.html';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert("Incorrect password. Please contact support if you've paid.");
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <img src="channels4_profile.jpg" alt="Temple Tales Studio Logo">
+    <h1>Tamil SSML Voice Formatter</h1>
+    <p>A tool by <strong>Temple Tales Studio</strong> to convert Tamil text into SSML format for better pronunciation with ElevenLabs</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2>Tool Description</h2>
+      <p>This HTML tool helps convert your Tamil text into ElevenLabs-compatible SSML voice format. It automatically adds pitch, pause, and loudness attributes to improve Tamil pronunciation.</p>
+      <p>You can run this HTML file locally on your computer or integrate it into your own project.</p>
+    </div>
+
+    <div class="card">
+      <h2>Example SSML Output</h2>
+      <div class="demo">
+&lt;speak&gt;
+  &lt;prosody pitch="+6%" volume="loud"&gt;வணக்கம். இது உங்கள் தமிழ் உரை குரல் வடிவமாகும்.&lt;/prosody&gt;
+  &lt;break time="600ms"/&gt;
+&lt;/speak&gt;
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Purchase & Download</h2>
+      <p>Pay once and get instant access. No subscription required.</p>
+      <div class="upi">
+        <img src="IMG-20250611-WA0020.jpg" alt="UPI QR Code" style="margin-top: 20px; border-radius: 12px; max-width: 240px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+        <p style="margin-top: 10px; font-weight: bold;">Scan to Pay</p>
+      </div>
+      🏷 Pay ₹99 and contact us through the details below to get access:<br/><br/>
+      📧 jsowmiya021@gmail.com<br/>
+      📱 +91 6383303780<br/><br/>
+      <button class="buy" onclick="downloadTool()">Download Tool</button>
+      <p style="margin-top: 10px; font-size: 14px; color: #444;">After payment, use password <strong>templetales99</strong> to download the tool.</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Temple Tales Studio. All rights reserved. | YouTube: TempleTalesStudio
+  </footer>
+</body>
+</html>

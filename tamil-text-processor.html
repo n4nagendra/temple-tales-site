@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Text to SSML Processor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        textarea, select, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        textarea:focus, select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .process-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .process-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .result-card h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+        
+        .copy-btn.copied {
+            background: #28a745;
+        }
+        
+        .progress {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .results {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+        
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tamil Text to SSML Processor</h1>
+            <p>Convert Tamil/English text to standardized Tamil with enhanced pronunciation SSML</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="inputText">Input Text (Tamil/English):</label>
+                    <textarea id="inputText" placeholder="Enter your Tamil or English text here..."></textarea>
+                </div>
+                
+                <div class="controls">
+                    <div class="input-group">
+                        <label for="inputLang">Input Language:</label>
+                        <select id="inputLang">
+                            <option value="auto">Auto Detect</option>
+                            <option value="tamil">Tamil</option>
+                            <option value="english">English</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="voiceStyle">Voice Style:</label>
+                        <select id="voiceStyle">
+                            <option value="conversational">Conversational</option>
+                            <option value="narrative">Narrative</option>
+                            <option value="news">News</option>
+                            <option value="formal">Formal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="speechRate">Speech Rate:</label>
+                        <select id="speechRate">
+                            <option value="slow">Slow</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="fast">Fast</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="pitchLevel">Pitch Level:</label>
+                        <select id="pitchLevel">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="ssmlType">SSML Output Type:</label>
+                        <select id="ssmlType">
+                            <option value="full" selected>Full SSML</option>
+                            <option value="simple">Simple SSML</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="progress" id="progress">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <button class="process-btn" onclick="processText()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    Process Text
+                </button>
+            </div>
+            
+            <div class="results" id="results" style="display: none;">
+                <div class="result-card">
+                    <h3>
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        Standardized Tamil
+                    </h3>
+                    <div class="result-content" id="standardTamil"></div>
+                    <button class="copy-btn" onclick="copyToClipboard('standardTamil', this)">Copy</button>
+                </div>
+                
+                <div class="result-card">
+                    <h3>
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 9.95 9 11 5.16-1.05 9-5.45 9-11V7l-10-5z"/>
+                        </svg>
+                        ElevenLabs SSML
+                    </h3>
+                    <div class="result-content" id="ssmlOutput"></div>
+                    <button class="copy-btn" onclick="copyToClipboard('ssmlOutput', this)">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tamil character mappings and processing rules
+        const tamilMappings = {
+            // Common English to Tamil transliterations
+            'a': 'அ', 'aa': 'ஆ', 'i': 'இ', 'ii': 'ஈ', 'u': 'உ', 'uu': 'ஊ',
+            'e': 'எ', 'ee': 'ஏ', 'ai': 'ஐ', 'o': 'ஒ', 'oo': 'ஓ', 'au': 'ஔ',
+            'ka': 'க', 'ga': 'க', 'nga': 'ங', 'cha': 'ச', 'ja': 'ஜ', 'nya': 'ஞ',
+            'ta': 'த', 'da': 'த', 'na': 'ந', 'pa': 'ப', 'ba': 'ப', 'ma': 'ம',
+            'ya': 'ய', 'ra': 'ர', 'la': 'ல', 'va': 'வ', 'sha': 'ஷ', 'sa': 'ஸ', 'ha': 'ஹ'
+        };
+
+        const pronunciationRules = {
+            // Tamil pronunciation enhancement rules
+            'க்': { emphasis: 'strong', pitch: '+10%' },
+            'ங்': { rate: 'slow', pitch: '+5%' },
+            'ச்': { emphasis: 'moderate', volume: '+2dB' },
+            'ஞ்': { rate: 'slow', pitch: '+8%' },
+            'த்': { emphasis: 'strong', volume: '+1dB' },
+            'ந்': { rate: 'medium', pitch: '+3%' },
+            'ப்': { emphasis: 'strong', volume: '+2dB' },
+            'ம்': { rate: 'slow', volume: '+1dB' },
+            'ய்': { pitch: '+5%', rate: 'medium' },
+            'ர்': { emphasis: 'moderate', volume: '+1dB' },
+            'ல்': { rate: 'medium', pitch: '+2%' },
+            'வ்': { volume: '+1dB', rate: 'medium' },
+            'ழ்': { rate: 'slow', emphasis: 'strong', pitch: '+7%' },
+            'ள்': { emphasis: 'moderate', pitch: '+4%' },
+            'ற்': { emphasis: 'strong', volume: '+2dB' },
+            'ன்': { rate: 'medium', pitch: '+3%' }
+        };
+
+        function detectLanguage(text) {
+            const tamilRegex = /[\u0B80-\u0BFF]/;
+            const englishRegex = /[A-Za-z]/;
+            
+            const hasTamil = tamilRegex.test(text);
+            const hasEnglish = englishRegex.test(text);
+            
+            if (hasTamil && hasEnglish) return 'mixed';
+            if (hasTamil) return 'tamil';
+            if (hasEnglish) return 'english';
+            return 'unknown';
+        }
+
+        function transliterateToTamil(text) {
+            let result = text;
+            
+            // Simple transliteration for common English words
+            const commonWords = {
+                'hello': 'வணக்கம்',
+                'thank you': 'நன்றி',
+                'good': 'நல்ல',
+                'morning': 'காலை',
+                'evening': 'மாலை',
+                'night': 'இரவு',
+                'water': 'தண்ணீர்',
+                'food': 'உணவு',
+                'house': 'வீடு',
+                'school': 'பள்ளி',
+                'book': 'புத்தகம்',
+                'friend': 'நண்பன்',
+                'family': 'குடும்பம்'
+            };
+            
+            // Replace common English words with Tamil equivalents
+            for (const [eng, tam] of Object.entries(commonWords)) {
+                const regex = new RegExp(eng, 'gi');
+                result = result.replace(regex, tam);
+            }
+            
+            return result;
+        }
+
+        function standardizeTamil(text) {
+            let standardized = text;
+            
+            // Remove extra spaces and normalize
+            standardized = standardized.replace(/\s+/g, ' ').trim();
+            
+            // Fix common Tamil spelling variations
+            const standardizations = {
+                'கூ': 'கு',
+                'தூ': 'து',
+                'பூ': 'பு',
+                'மூ': 'மு'
+            };
+            
+            for (const [variant, standard] of Object.entries(standardizations)) {
+                standardized = standardized.replace(new RegExp(variant, 'g'), standard);
+            }
+            
+            return standardized;
+        }
+
+        function enhancePronunciation(text) {
+            let enhanced = text;
+            
+            // Apply pronunciation rules
+            for (const [char, rules] of Object.entries(pronunciationRules)) {
+                if (enhanced.includes(char)) {
+                    // Mark characters that need special pronunciation
+                    enhanced = enhanced.replace(new RegExp(char, 'g'), `{${char}}`);
+                }
+            }
+            
+            return enhanced;
+        }
+
+        function generateSSML(text, voiceStyle, speechRate, pitchLevel, ssmlType) {
+            const rateMapping = {
+                'slow': '0.8',
+                'medium': '1.0',
+                'fast': '1.2'
+            };
+            
+            const pitchMapping = {
+                'low': '-10%',
+                'medium': '0%',
+                'high': '+10%'
+            };
+            
+            let ssml = '';
+            
+            if (ssmlType === 'simple') {
+                // Simple SSML output - basic prosody and break tags only
+                ssml = `<speak>`;
+                ssml += `<prosody rate="${rateMapping[speechRate]}" pitch="${pitchMapping[pitchLevel]}">`;
+                
+                // Process text with minimal enhancements
+                let processedText = text;
+                
+                // Remove all special pronunciation markers
+                processedText = processedText.replace(/\{|\}/g, '');
+                
+                // Add basic punctuation breaks only
+                processedText = processedText.replace(/[।]/g, '<break time="400ms"/>');
+                processedText = processedText.replace(/[,]/g, '<break time="150ms"/>');
+                processedText = processedText.replace(/[.]/g, '<break time="500ms"/>');
+                processedText = processedText.replace(/[?!]/g, '<break time="300ms"/>');
+                
+                ssml += processedText;
+                ssml += `</prosody></speak>`;
+            } else {
+                // Full SSML output
+                ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ta-IN">`;
+                
+                // Add voice style
+                ssml += `<voice name="ta-IN-Neural" style="${voiceStyle}">`;
+                
+                // Add prosody for rate and pitch
+                ssml += `<prosody rate="${rateMapping[speechRate]}" pitch="${pitchMapping[pitchLevel]}">`;
+                
+                // Process text with pronunciation enhancements
+                const words = text.split(' ');
+                const processedWords = words.map(word => {
+                    let processedWord = word;
+                    
+                    // Check if word contains special pronunciation markers
+                    if (word.includes('{') && word.includes('}')) {
+                        const matches = word.match(/\{([^}]+)\}/g);
+                        if (matches) {
+                            matches.forEach(match => {
+                                const char = match.slice(1, -1);
+                                const rules = pronunciationRules[char];
+                                if (rules) {
+                                    let enhancement = `<prosody`;
+                                    if (rules.rate) enhancement += ` rate="${rules.rate}"`;
+                                    if (rules.pitch) enhancement += ` pitch="${rules.pitch}"`;
+                                    if (rules.volume) enhancement += ` volume="${rules.volume}"`;
+                                    enhancement += `>`;
+                                    
+                                    if (rules.emphasis) {
+                                        enhancement += `<emphasis level="${rules.emphasis}">${char}</emphasis>`;
+                                    } else {
+                                        enhancement += char;
+                                    }
+                                    enhancement += `</prosody>`;
+                                    
+                                    processedWord = processedWord.replace(match, enhancement);
+                                }
+                            });
+                        }
+                    } else {
+                        // Add pauses for Tamil punctuation
+                        processedWord = processedWord.replace(/[।]/g, '<break time="500ms"/>');
+                        processedWord = processedWord.replace(/[,]/g, '<break time="200ms"/>');
+                        processedWord = processedWord.replace(/[.]/g, '<break time="800ms"/>');
+                    }
+                    
+                    return processedWord;
+                });
+                
+                ssml += processedWords.join(' ');
+                ssml += `</prosody></voice></speak>`;
+            }
+            
+            // Clean up any remaining markers
+            ssml = ssml.replace(/\{|\}/g, '');
+            
+            return ssml;
+        }
+
+        async function processText() {
+            const inputText = document.getElementById('inputText').value.trim();
+            if (!inputText) {
+                alert('Please enter some text to process');
+                return;
+            }
+            
+            const inputLang = document.getElementById('inputLang').value;
+            const voiceStyle = document.getElementById('voiceStyle').value;
+            const speechRate = document.getElementById('speechRate').value;
+            const pitchLevel = document.getElementById('pitchLevel').value;
+            const ssmlType = document.getElementById('ssmlType').value;
+            
+            // Show progress
+            document.getElementById('progress').style.display = 'block';
+            const progressBar = document.getElementById('progressBar');
+            
+            try {
+                // Step 1: Language detection and transliteration
+                progressBar.style.width = '25%';
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                let detectedLang = inputLang === 'auto' ? detectLanguage(inputText) : inputLang;
+                let tamilText = inputText;
+                
+                if (detectedLang === 'english' || detectedLang === 'mixed') {
+                    tamilText = transliterateToTamil(inputText);
+                }
+                
+                // Step 2: Standardization
+                progressBar.style.width = '50%';
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const standardizedText = standardizeTamil(tamilText);
+                
+                // Step 3: Pronunciation enhancement
+                progressBar.style.width = '75%';
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const enhancedText = enhancePronunciation(standardizedText);
+                
+                // Step 4: SSML generation
+                progressBar.style.width = '100%';
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const ssmlOutput = generateSSML(enhancedText, voiceStyle, speechRate, pitchLevel, ssmlType);
+                
+                // Display results
+                document.getElementById('standardTamil').textContent = standardizedText;
+                document.getElementById('ssmlOutput').textContent = ssmlOutput;
+                document.getElementById('results').style.display = 'grid';
+                
+                // Hide progress
+                setTimeout(() => {
+                    document.getElementById('progress').style.display = 'none';
+                    progressBar.style.width = '0%';
+                }, 500);
+                
+            } catch (error) {
+                alert('An error occurred while processing the text: ' + error.message);
+                document.getElementById('progress').style.display = 'none';
+                progressBar.style.width = '0%';
+            }
+        }
+
+        function copyToClipboard(elementId, button) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy text to clipboard');
+            });
+        }
+
+        // Add some sample text for demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleText = "வணக்கம். இது ஒரு சோதனை உரை. தமிழ் உச்சரிப்பு மேம்படுத்த இந்த கருவி உதவும்.";
+            document.getElementById('inputText').placeholder = "Enter your text here... Example: " + sampleText;
+        });
+    </script>
+</body>
+</html>
